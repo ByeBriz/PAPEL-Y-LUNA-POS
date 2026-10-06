@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Papel y Luna - MVP 2 | Juan Carlos Gutierrez</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- PANTALLA DE CARGA GLOBAL -->
+    <div id="cargando-overlay" class="capa-modal" style="display: none; z-index: 9999;">
+        <div class="loader-spinner"></div>
+        <p id="texto-carga">Sincronizando con Google Sheets...</p>
+    </div>
+
+    <header class="encabezado-app">
+        <h1>🌙 Papelería Papel y Luna</h1>
+        <p>Sistema POS - MVP 2</p>
+    </header>
+
+    <nav class="barra-navegacion" id="nav-principal">
+        <button class="btn-nav activo" data-vista="ventas">🛒 Ventas</button>
+        <button class="btn-nav" data-vista="productos">📦 Productos</button>
+        <button class="btn-nav" data-vista="compras">📥 Compras</button>
+        <button class="btn-nav" data-vista="entidades">👥 Entidades</button>
+        <button class="btn-nav" data-vista="historial">📜 Historial</button>
+    </nav>
+
+    <main class="contenedor-app">
+        
+        <!-- VISTA 1: VENTAS -->
+        <div id="vista-ventas" style="display: flex; width: 100%; gap: 25px;">
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion">
+                    <h2>Catálogo</h2>
+                    <input type="text" id="entrada-busqueda" placeholder="Buscar producto..." class="barra-busqueda">
+                </div>
+                <div class="cuadricula-productos" id="cuadricula-productos"></div>
+            </section>
+
+            <section class="seccion-factura">
+                <div class="encabezado-seccion">
+                    <h2>Factura Actual</h2>
+                </div>
+                <div class="estado-vacio" id="estado-vacio">
+                    <p>🛒 La venta está vacía.</p>
+                </div>
+                <div class="items-factura" id="items-factura"></div>
+                
+                <div class="resumen-factura" id="resumen-factura" style="display: none;">
+                    <div class="fila-resumen"><span>Subtotal:</span><span id="subtotal-val">$0</span></div>
+                    <div class="fila-resumen"><span>IVA (19%):</span><span id="iva-val">$0</span></div>
+                    <hr class="linea-resumen">
+                    <div class="fila-resumen fila-total"><span>TOTAL:</span><span id="total-val">$0</span></div>
+                    
+                    <button class="btn btn-bloque btn-naranja" id="btn-guardar-abierta" style="margin-bottom: 10px;">💾 Guardar Venta Abierta</button>
+                    <button class="btn btn-bloque btn-verde" id="btn-cobrar">Cobrar Venta</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- VISTA 2: PRODUCTOS -->
+        <div id="vista-productos" style="display: none; width: 100%;">
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion">
+                    <h2>Gestión de Inventario</h2>
+                    <button class="btn" id="btn-nuevo-producto" style="width: auto;">➕ Nuevo Producto</button>
+                </div>
+                <div class="contenedor-tabla">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio Venta</th>
+                                <th>Costo</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-productos"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- VISTA 3: COMPRAS (NUEVO) -->
+        <div id="vista-compras" style="display: none; width: 100%;">
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion">
+                    <h2>Ingreso de Mercancía</h2>
+                    <button class="btn" id="btn-nueva-compra" style="width: auto;">📥 Registrar Compra</button>
+                </div>
+                <div class="contenedor-tabla">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>ID Compra</th>
+                                <th>Fecha</th>
+                                <th>Proveedor</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-compras"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- VISTA 4: ENTIDADES (NUEVO) -->
+        <div id="vista-entidades" style="display: none; width: 100%; flex-direction: column; gap: 20px;">
+            <!-- Categorías -->
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion">
+                    <h2>Categorías</h2>
+                    <input type="search" class="barra-busqueda busqueda-entidad" data-tipo="categorias" placeholder="Buscar categoría...">
+                    <button class="btn btn-nueva-entidad" data-tipo="categoria" style="width: auto;">➕ Nueva Categoría</button>
+                </div>
+                <div class="contenedor-tabla"><table class="tabla-datos"><tbody id="tabla-categorias"></tbody></table></div>
+            </section>
+            <!-- Clientes -->
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion">
+                    <h2>Clientes</h2>
+                    <input type="search" class="barra-busqueda busqueda-entidad" data-tipo="clientes" placeholder="Buscar cliente...">
+                    <button class="btn btn-nueva-entidad" data-tipo="cliente" style="width: auto;">➕ Nuevo Cliente</button>
+                </div>
+                <div class="contenedor-tabla"><table class="tabla-datos"><tbody id="tabla-clientes"></tbody></table></div>
+            </section>
+            <!-- Proveedores -->
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion">
+                    <h2>Proveedores</h2>
+                    <input type="search" class="barra-busqueda busqueda-entidad" data-tipo="proveedores" placeholder="Buscar proveedor...">
+                    <button class="btn btn-nueva-entidad" data-tipo="proveedor" style="width: auto;">➕ Nuevo Proveedor</button>
+                </div>
+                <div class="contenedor-tabla"><table class="tabla-datos"><tbody id="tabla-proveedores"></tbody></table></div>
+            </section>
+        </div>
+
+        <!-- VISTA 5: HISTORIAL -->
+        <div id="vista-historial" style="display: none; width: 100%;">
+            <section class="seccion-catalogo">
+                <div class="encabezado-seccion"><h2>Historial de Ventas</h2></div>
+                <div class="contenedor-tabla">
+                    <table class="tabla-datos">
+                        <thead>
+                            <tr>
+                                <th>Factura</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Estado</th>
+                                <th>Método</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-historial"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MODAL DE PAGO -->
+    <div id="modal-pago" class="capa-modal" style="display: none;">
+        <div class="contenido-modal">
+            <h2 style="margin-bottom: 15px;">Procesar Pago</h2>
+            <div class="fila-resumen fila-total" style="margin-bottom: 20px;"><span>Total a pagar:</span><span id="modal-total-pagar">$0</span></div>
+            
+            <div class="grupo-formulario">
+                <label>Cliente (Obligatorio si es fiado):</label>
+                <select id="select-cliente-venta" class="entrada-formulario"></select>
+            </div>
+
+            <div class="grupo-formulario">
+                <label>Método de Pago:</label>
+                <select id="metodo-pago" class="entrada-formulario">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Nequi">Nequi</option>
+                    <option value="Debe">Debe (Cuenta por cobrar)</option>
+                </select>
+            </div>
+
+            <div class="grupo-formulario" id="grupo-efectivo">
+                <label>Valor Recibido (COP):</label>
+                <input type="number" id="valor-recibido" class="entrada-formulario" placeholder="Ej: 50000">
+                <div class="fila-resumen" style="margin-top: 15px; color: var(--danger-red);"><span>Cambio:</span><span id="valor-cambio">$0</span></div>
+            </div>
+
+            <div class="acciones-modal">
+                <button class="btn btn-cancelar" id="btn-cancelar-pago">Cancelar</button>
+                <button class="btn btn-verde" id="btn-confirmar-venta">Confirmar Venta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRODUCTO (Ahora con select de Categoría) -->
+    <div id="modal-producto" class="capa-modal" style="display: none;">
+        <div class="contenido-modal">
+            <h2 id="titulo-modal-producto" style="margin-bottom: 15px;">Producto</h2>
+            <input type="hidden" id="prod-id">
+            
+            <div class="grupo-formulario"><label>Nombre *</label><input type="text" id="prod-nombre" class="entrada-formulario"></div>
+            <div style="display: flex; gap: 10px;">
+                <div class="grupo-formulario" style="flex: 1;"><label>Código *</label><input type="text" id="prod-codigo" class="entrada-formulario"></div>
+                <div class="grupo-formulario" style="flex: 1;">
+                    <label>Categoría *</label>
+                    <select id="prod-categoria" class="entrada-formulario"></select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="grupo-formulario" style="flex: 1;"><label>Costo *</label><input type="number" id="prod-costo" class="entrada-formulario"></div>
+                <div class="grupo-formulario" style="flex: 1;"><label>Precio *</label><input type="number" id="prod-precio" class="entrada-formulario"></div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="grupo-formulario" style="flex: 1;">
+                    <label>Inventario</label>
+                    <select id="prod-seguimiento" class="entrada-formulario">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="grupo-formulario" style="flex: 1;"><label>Stock Físico</label><input type="number" id="prod-stock" class="entrada-formulario"></div>
+            </div>
+            <div class="acciones-modal">
+                <button class="btn btn-cancelar" id="btn-cancelar-producto">Cancelar</button>
+                <button class="btn btn-verde" id="btn-guardar-producto" disabled>Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL COMPRA (Nuevo para MVP 2) -->
+    <div id="modal-compra" class="capa-modal" style="display: none;">
+        <div class="contenido-modal" style="max-width: 700px;">
+            <h2 style="margin-bottom: 15px;">Registrar Compra</h2>
+            <div style="display: flex; gap: 15px;">
+                <div class="grupo-formulario" style="flex: 1;">
+                    <label>Proveedor *</label>
+                    <select id="select-proveedor-compra" class="entrada-formulario"></select>
+                </div>
+                <div class="grupo-formulario" style="flex: 1;">
+                    <label>Producto al Inventario</label>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="select-producto-compra" class="entrada-formulario"></select>
+                        <button class="btn" id="btn-add-item-compra" style="flex: 0;">Añadir</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contenedor-tabla" style="max-height: 200px;">
+                <table class="tabla-datos">
+                    <thead><tr><th>Producto</th><th>Costo Unit.</th><th>Cant.</th><th>Subtotal</th><th>X</th></tr></thead>
+                    <tbody id="items-compra-tabla"></tbody>
+                </table>
+            </div>
+
+            <div class="fila-resumen fila-total" style="margin-top: 15px;"><span>Total Compra:</span><span id="total-compra-val">$0</span></div>
+            
+            <div class="acciones-modal">
+                <button class="btn btn-cancelar" id="btn-cancelar-compra">Cancelar</button>
+                <button class="btn btn-verde" id="btn-guardar-compra" disabled>Guardar y Afectar Stock</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ENTIDADES (Genérico para Categorías, Clientes, Proveedores) -->
+    <div id="modal-entidad" class="capa-modal" style="display: none;">
+        <div class="contenido-modal">
+            <h2 id="titulo-modal-entidad" style="margin-bottom: 15px;">Entidad</h2>
+            <input type="hidden" id="entidad-id">
+            <input type="hidden" id="entidad-tipo">
+            
+            <div class="grupo-formulario"><label>Nombre *</label><input type="text" id="entidad-nombre" class="entrada-formulario"></div>
+            <div class="grupo-formulario extra-entidad" style="display: none;"><label>Teléfono</label><input type="text" id="entidad-telefono" class="entrada-formulario"></div>
+            <div class="grupo-formulario extra-entidad" style="display: none;"><label>Correo</label><input type="email" id="entidad-correo" class="entrada-formulario"></div>
+
+            <div class="acciones-modal">
+                <button class="btn btn-cancelar" id="btn-cancelar-entidad">Cancelar</button>
+                <button class="btn btn-verde" id="btn-guardar-entidad" disabled>Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mantenemos los scripts en orden -->
+    <script src="api.js"></script>
+    <script src="datos.js"></script>
+    <script src="navegacion.js"></script>
+    <script src="entidades.js"></script>
+    <script src="productos.js"></script>
+    <script src="compras.js"></script>
+    <script src="ventas.js"></script>
+    <script src="historial.js"></script>
+</body>
+</html>
