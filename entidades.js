@@ -71,7 +71,15 @@ document.getElementById('vista-entidades').addEventListener('click', evento => {
     const btnNueva = evento.target.closest('.btn-nueva-entidad');
     const btnEditar = evento.target.closest('.btn-editar-entidad');
     const btnEliminar = evento.target.closest('.btn-eliminar-entidad');
-    if (btnNueva) abrirModalEntidad(btnNueva.dataset.tipo + 's');
+    if (btnNueva) {
+        const tiposPlurales = {
+            categoria: 'categorias',
+            cliente: 'clientes',
+            proveedor: 'proveedores'
+        };
+        const tipo = tiposPlurales[btnNueva.dataset.tipo];
+        if (tipo) abrirModalEntidad(tipo);
+    }
     if (btnEditar) abrirModalEntidad(btnEditar.dataset.tipo, btnEditar.dataset.id);
     if (btnEliminar) eliminarEntidad(btnEliminar.dataset.tipo, btnEliminar.dataset.id);
 });
