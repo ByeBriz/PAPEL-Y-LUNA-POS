@@ -1,6 +1,5 @@
-// api.js - único punto de acceso al servicio Google Apps Script
-const API_URL = "https://script.google.com/macros/s/AKfycbwWs1v958iL4q_R9YrcQ7a3oD3i9rnDhUNx1odJx5-3U-o2i6-FhdF8z2r-0pK5IB_b6Q/exec";
 
+const API_URL = "https://script.google.com/macros/s/AKfycbwcIkftzTAB1U6lzXMS7BT7O5BbBjrugk4v8QwtKb2gT3dT_xdoc4bsO1w0xht4mjOmlA/exec"
 async function apiRequest(url, options = {}) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 20000);
