@@ -92,6 +92,7 @@ btnGuardarProducto.addEventListener('click', async () => {
         window.renderizarTablaProductos();
         window.renderizarCatalogo(productos);
         actualizarInterfazFactura();
+        notificar(id ? 'Producto actualizado correctamente.' : 'Producto creado correctamente.', 'exito');
     } catch (error) {
         alert(`No se pudo guardar el producto: ${error.message}`);
     } finally {
@@ -108,12 +109,12 @@ async function eliminarProducto(id) {
     if (!confirm('¿Estás seguro de eliminar este producto?')) return;
 
     try {
-        mostrarCarga(true, 'Eliminando producto...');
         await apiPost('productos', 'delete', { id });
         productos = productos.filter(p => String(p.id) !== String(id));
         window.renderizarTablaProductos();
         window.renderizarCatalogo(productos);
+        notificar('Producto eliminado correctamente.', 'exito');
     } catch (error) {
         alert(`No se pudo eliminar el producto: ${error.message}`);
-    } finally { mostrarCarga(false); }
+    } finally { }
 }

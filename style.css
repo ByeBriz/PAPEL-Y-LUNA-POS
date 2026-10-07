@@ -116,3 +116,76 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
     .entrada-cantidad { flex: 1; min-width: 55px; }
     .contenido-modal { width: calc(100% - 20px); padding: 16px; }
 }
+
+/* Notificaciones integradas del sistema: no dependen del navegador ni de servicios externos. */
+.contenedor-notificaciones {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 12000;
+    width: min(390px, calc(100vw - 36px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.notificacion {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: 34px 1fr 28px;
+    align-items: start;
+    gap: 10px;
+    padding: 13px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-line);
+    background: var(--surface-white);
+    color: var(--text-main);
+    box-shadow: 0 14px 35px rgba(0,0,0,.28);
+    animation: aparecerNotificacion .18s ease-out;
+}
+.notificacion-icono {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary-dark);
+    font-weight: 800;
+}
+.notificacion-contenido { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.notificacion-contenido strong { font-size: 13px; }
+.notificacion-contenido span { font-size: 13px; line-height: 1.35; white-space: pre-line; overflow-wrap: anywhere; }
+.notificacion-cerrar { border: 0; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 22px; line-height: 1; padding: 0; }
+.notificacion-exito .notificacion-icono { color: var(--success-green); }
+.notificacion-error .notificacion-icono { color: #ef4444; }
+.notificacion-advertencia .notificacion-icono { color: #f59e0b; }
+.notificacion-info .notificacion-icono { color: var(--action-blue); }
+.texto-carga-secundario { font-size: 12px; opacity: .75; text-transform: none; letter-spacing: 0; }
+@keyframes aparecerNotificacion { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Precio editable directamente en la venta. */
+.precio-editable-venta {
+    width: 110px;
+    padding: 5px 7px;
+    border: 1px solid var(--border-line);
+    border-radius: 6px;
+    background: var(--primary-dark);
+    color: var(--text-main);
+    text-align: right;
+    font-weight: 700;
+}
+.precio-editable-venta:focus { outline: none; border-color: var(--action-blue); }
+.btn-estado-abierta {
+    border: 1px solid var(--action-blue);
+    background: transparent;
+    color: var(--action-blue);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.btn-estado-abierta:hover { background: var(--action-blue); color: white; }
+@media (max-width: 600px) {
+    .contenedor-notificaciones { top: 10px; right: 10px; width: calc(100vw - 20px); }
+    .precio-editable-venta { width: 95px; }
+}

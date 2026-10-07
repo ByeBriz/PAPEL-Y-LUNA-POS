@@ -9,10 +9,12 @@
 <body>
 
     <!-- PANTALLA DE CARGA GLOBAL -->
-    <div id="cargando-overlay" class="capa-modal" style="display: none; z-index: 9999;">
-        <div class="loader-spinner"></div>
-        <p id="texto-carga">Sincronizando con Google Sheets...</p>
+    <div id="cargando-overlay" class="capa-modal" style="display: none; z-index: 9999;" aria-live="polite" aria-busy="true">
+        <div class="loader-spinner" aria-hidden="true"></div>
+        <p id="texto-carga">Procesando solicitud...</p>
+        <span class="texto-carga-secundario">Por favor espera...</span>
     </div>
+    <div id="contenedor-notificaciones" class="contenedor-notificaciones" aria-live="polite" aria-atomic="false"></div>
 
     <header class="encabezado-app">
         <h1>🌙 Papelería Papel y Luna</h1>

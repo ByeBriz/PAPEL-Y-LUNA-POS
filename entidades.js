@@ -136,6 +136,7 @@ btnGuardarEntidad.addEventListener('click', async () => {
         window.renderizarEntidades();
         if (typeof window.renderizarTablaProductos === 'function') window.renderizarTablaProductos();
         if (typeof window.renderizarCatalogo === 'function') window.renderizarCatalogo(productos);
+        notificar(id ? `${config.singular} actualizado correctamente.` : `${config.singular} creado correctamente.`, 'exito');
     } catch (error) {
         alert(`No se pudo guardar el ${config.singular}: ${error.message}`);
     } finally {
@@ -153,7 +154,6 @@ async function eliminarEntidad(tipo, id) {
     if (!confirm(`¿Seguro que deseas eliminar este ${config.singular}?`)) return;
 
     try {
-        mostrarCarga(true);
         await apiPost(tipo, 'delete', { id });
         const coleccion = config.coleccion();
         const nuevaColeccion = coleccion.filter(i => String(i.id) !== String(id));
@@ -161,9 +161,9 @@ async function eliminarEntidad(tipo, id) {
         if (tipo === 'clientes') clientes = nuevaColeccion;
         if (tipo === 'proveedores') proveedores = nuevaColeccion;
         window.renderizarEntidades();
+        notificar(`${config.singular} eliminado correctamente.`, 'exito');
     } catch (error) {
         alert(`No se pudo eliminar el ${config.singular}: ${error.message}`);
     } finally {
-        mostrarCarga(false);
     }
 }

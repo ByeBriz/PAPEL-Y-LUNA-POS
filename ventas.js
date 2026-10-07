@@ -107,8 +107,9 @@ function actualizarInterfazFactura() {
                 <button class="btn-quitar" onclick="cambiarCantidadCarrito(${index}, -1)">−</button>
                 <span style="font-weight:bold; min-width:25px; text-align:center;">${item.cantidad}</span>
                 <button class="btn-quitar" onclick="cambiarCantidadCarrito(${index}, 1)">+</button>
-                <p class="nombre-item" style="width:80px;text-align:right;color:var(--action-blue);">${formatearMoneda(linea)}</p>
-                <button class="btn-quitar" onclick="eliminarItemCarrito(${index})">X</button>
+                <input class="precio-editable-venta" type="number" min="0" step="1" value="${Number(item.precio)}" data-indice-precio="${index}" aria-label="Precio de ${String(item.nombre).replace(/"/g, '&quot;')}" title="Precio de esta venta">
+                <p class="nombre-item" style="width:90px;text-align:right;color:var(--action-blue);">${formatearMoneda(linea)}</p>
+                <button class="btn-quitar" onclick="eliminarItemCarrito(${index})" title="Eliminar producto">X</button>
             </div>`;
         fila.querySelector('.nombre-item').textContent = item.nombre;
         contenedorItemsFactura.appendChild(fila);
@@ -120,6 +121,22 @@ function actualizarInterfazFactura() {
     document.getElementById('total-val').textContent = formatearMoneda(totalVentaActual);
 }
 window.actualizarInterfazFactura = actualizarInterfazFactura;
+
+contenedorItemsFactura.addEventListener('change', evento => {
+    const entrada = evento.target.closest('.precio-editable-venta');
+    if (!entrada) return;
+    const indice = Number(entrada.dataset.indicePrecio);
+    const item = carritoFactura[indice];
+    if (!item) return;
+    const precio = Number(entrada.value);
+    if (!Number.isFinite(precio) || precio < 0) {
+        entrada.value = Number(item.precio) || 0;
+        return notificar('El precio debe ser un número mayor o igual a 0.', 'advertencia');
+    }
+    item.precio = Math.round(precio);
+    actualizarInterfazFactura();
+    notificar(`Precio de ${item.nombre} actualizado para esta venta.`, 'exito', 2600);
+});
 
 function construirVenta(estado, clienteId = '', metodoPago = '', valorRecibido = 0, cambio = 0) {
     const subtotal = carritoFactura.reduce((s, i) => s + Number(i.precio) * Number(i.cantidad), 0);
@@ -140,15 +157,15 @@ document.getElementById('btn-guardar-abierta').addEventListener('click', async (
     if (!carritoFactura.length) return alert('No hay productos en la venta.');
     const venta = construirVenta('abierta');
     const boton = document.getElementById('btn-guardar-abierta');
-    boton.disabled = true; mostrarCarga(true, 'Guardando venta abierta...');
+    boton.disabled = true;
     try {
         await apiPost('ventas', idVentaAbiertaActual ? 'update' : 'create', venta);
         actualizarVentaLocal(venta);
-        alert('Venta guardada en estado ABIERTO.');
+        notificar('Venta guardada en estado ABIERTO.', 'exito');
         limpiarCaja();
         window.renderizarHistorialVentas();
     } catch (error) { alert(`No se pudo guardar la venta abierta: ${error.message}`); }
-    finally { mostrarCarga(false); boton.disabled = false; }
+    finally { boton.disabled = false; }
 });
 
 document.getElementById('btn-cobrar').addEventListener('click', () => {
@@ -185,7 +202,7 @@ document.getElementById('btn-confirmar-venta').addEventListener('click', async (
     const ventaFinal = construirVenta('cerrada', clienteId, metodo, metodo === 'Efectivo' ? recibido : 0, metodo === 'Efectivo' ? recibido - totalVentaActual : 0);
     const eraVentaAbierta = Boolean(idVentaAbiertaActual);
     const boton = document.getElementById('btn-confirmar-venta');
-    boton.disabled = true; mostrarCarga(true, 'Confirmando venta y actualizando inventario...');
+    boton.disabled = true;
 
     try {
         await apiPost('ventas', 'confirm', {
@@ -200,13 +217,13 @@ document.getElementById('btn-confirmar-venta').addEventListener('click', async (
 
         actualizarVentaLocal(ventaFinal);
         document.getElementById('modal-pago').style.display = 'none';
-        alert('Venta CERRADA exitosamente.');
+        notificar('Venta CERRADA exitosamente.', 'exito');
         limpiarCaja();
         window.renderizarTablaProductos();
         window.renderizarCatalogo(productos);
         window.renderizarHistorialVentas();
     } catch (error) { alert(`No se pudo cerrar la venta: ${error.message}`); }
-    finally { mostrarCarga(false); boton.disabled = false; }
+    finally { boton.disabled = false; }
 });
 
 function limpiarCaja() { carritoFactura = []; idVentaAbiertaActual = null; actualizarInterfazFactura(); }

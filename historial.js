@@ -6,7 +6,7 @@ window.renderizarHistorialVentas = function() {
     [...ventasCerradas].sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).forEach(venta => {
         const cliente = clientes.find(c => String(c.id) === String(venta.clienteId));
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${String(venta.id).slice(0,8)}</td><td>${new Date(venta.fecha).toLocaleString('es-CO')}</td><td></td><td>${venta.estado}</td><td>${venta.metodoPago || '-'}</td><td>${formatearMoneda(venta.total)}</td><td><button class="btn-icon btn-detalle-venta" data-id="${venta.id}" title="Ver detalle">📄</button>${venta.estado === 'cerrada' ? `<button class="btn-icon btn-imprimir-venta" data-id="${venta.id}" title="Imprimir / guardar PDF">🖨️</button>` : ''}${venta.estado === 'abierta' ? `<button class="btn-icon btn-retomar-venta" data-id="${venta.id}" title="Retomar venta">🛒</button>` : ''}</td>`;
+        tr.innerHTML = `<td>${String(venta.id).slice(0,8)}</td><td>${new Date(venta.fecha).toLocaleString('es-CO')}</td><td></td><td>${venta.estado}</td><td>${venta.metodoPago || '-'}</td><td>${formatearMoneda(venta.total)}</td><td><button class="btn-icon btn-detalle-venta" data-id="${venta.id}" title="Ver detalle">📄</button>${venta.estado === 'cerrada' ? `<button class="btn-icon btn-imprimir-venta" data-id="${venta.id}" title="Imprimir / guardar PDF">🖨️</button>` : ''}${venta.estado === 'abierta' ? `<button class="btn-estado-abierta btn-retomar-venta" data-id="${venta.id}" title="Retomar venta abierta">ABIERTA</button>` : ''}</td>`;
         tr.children[2].textContent = cliente?.nombre || 'Público General';
         tr.children[3].style.color = venta.estado === 'cerrada' ? 'var(--success-green)' : 'var(--action-blue)';
         tablaHistorial.appendChild(tr);
@@ -22,7 +22,7 @@ tablaHistorial.addEventListener('click', e => {
         if (!venta) return;
         const cliente = clientes.find(c => String(c.id) === String(venta.clienteId));
         const items = (venta.items || []).map(i => `• ${i.cantidad} × ${i.nombre} — ${formatearMoneda(i.precio)} c/u`).join('\n');
-        alert(`Factura ${String(venta.id).slice(0,8)}\nEstado: ${venta.estado}\nCliente: ${cliente?.nombre || 'Público General'}\nMétodo: ${venta.metodoPago || '-'}\nFecha: ${new Date(venta.fecha).toLocaleString('es-CO')}\n\n${items}\n\nTOTAL: ${formatearMoneda(venta.total)}`);
+        notificar(`Factura ${String(venta.id).slice(0,8)}\nEstado: ${venta.estado}\nCliente: ${cliente?.nombre || 'Público General'}\nMétodo: ${venta.metodoPago || '-'}\nFecha: ${new Date(venta.fecha).toLocaleString('es-CO')}\n\n${items}\n\nTOTAL: ${formatearMoneda(venta.total)}`);
     }
     if (retomar) window.retomarVentaAbierta(retomar.dataset.id);
     if (imprimir) imprimirFactura(imprimir.dataset.id);

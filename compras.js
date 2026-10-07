@@ -77,7 +77,7 @@ btnGuardarCompra.addEventListener('click', async () => {
 
     const total = itemsCompraTemporal.reduce((sum, item) => sum + Number(item.cantidad) * Number(item.costo), 0);
     const compra = { id: generarId(), fecha: new Date().toISOString(), proveedorId, total, itemsJson: JSON.stringify(itemsCompraTemporal.map(i => ({ ...i }))) };
-    btnGuardarCompra.disabled = true; btnGuardarCompra.textContent = 'Procesando...'; mostrarCarga(true, 'Registrando compra y actualizando inventario...');
+    btnGuardarCompra.disabled = true; btnGuardarCompra.textContent = 'Procesando...';
     try {
         await apiPost('compras', 'confirm', {
             compra,
@@ -99,7 +99,7 @@ btnGuardarCompra.addEventListener('click', async () => {
         comprasRegistradas.push(compra);
         modalCompra.style.display = 'none';
         window.renderizarCompras(); window.renderizarTablaProductos(); window.renderizarCatalogo(productos);
-        alert('Compra registrada e inventario actualizado correctamente.');
+        notificar('Compra registrada e inventario actualizado correctamente.', 'exito');
     } catch (error) { alert(`No se pudo registrar la compra: ${error.message}`); }
-    finally { mostrarCarga(false); btnGuardarCompra.disabled = false; btnGuardarCompra.textContent = 'Guardar y Afectar Stock'; }
+    finally { btnGuardarCompra.disabled = false; btnGuardarCompra.textContent = 'Guardar y Afectar Stock'; }
 });

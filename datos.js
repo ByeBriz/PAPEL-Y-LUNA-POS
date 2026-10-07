@@ -20,14 +20,31 @@ function generarId() {
         : `id-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 }
 
-function mostrarCarga(mostrar, texto = 'Sincronizando con Google Sheets...') {
+function mostrarCarga(mostrar, texto = 'Procesando solicitud...') {
     const overlay = document.getElementById('cargando-overlay');
     if (!overlay) return;
-    document.getElementById('texto-carga').textContent = texto;
+    const textoEl = document.getElementById('texto-carga');
+    if (textoEl) textoEl.textContent = texto;
     overlay.style.display = mostrar ? 'flex' : 'none';
 }
 window.mostrarCarga = mostrarCarga;
 
+function notificar(mensaje, tipo = 'info', duracion = 4200) {
+    const contenedor = document.getElementById('contenedor-notificaciones');
+    if (!contenedor) return;
+    const iconos = { exito: '✓', error: '!', advertencia: '⚠', info: 'i' };
+    const titulo = { exito: 'Éxito', error: 'Error', advertencia: 'Atención', info: 'Información' };
+    const aviso = document.createElement('div');
+    aviso.className = `notificacion notificacion-${tipo}`;
+    aviso.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
+    aviso.innerHTML = `<span class="notificacion-icono">${iconos[tipo] || 'i'}</span><div class="notificacion-contenido"><strong>${titulo[tipo] || 'Información'}</strong><span></span></div><button type="button" class="notificacion-cerrar" aria-label="Cerrar notificación">×</button>`;
+    aviso.querySelector('.notificacion-contenido span').textContent = String(mensaje);
+    aviso.querySelector('.notificacion-cerrar').addEventListener('click', () => aviso.remove());
+    contenedor.appendChild(aviso);
+    if (duracion > 0) setTimeout(() => aviso.remove(), duracion);
+}
+window.notificar = notificar;
+window.alert = (mensaje) => notificar(mensaje, 'error', 6000);
 function esSeguimientoInventario(producto) {
     return producto?.seguimientoInventario === true || String(producto?.seguimientoInventario).toLowerCase() === 'true';
 }
@@ -45,7 +62,6 @@ function parseItems(itemsJson, items = []) {
 }
 
 async function inicializarSistema() {
-    mostrarCarga(true, 'Cargando información desde Google Sheets...');
     try {
         [productos, ventasCerradas, categorias, clientes, proveedores, comprasRegistradas] = await Promise.all([
             apiGet('productos'),
@@ -65,7 +81,7 @@ async function inicializarSistema() {
         console.error(error);
         alert(`No se pudo sincronizar el sistema con Google Sheets.\n\n${error.message}`);
     } finally {
-        mostrarCarga(false);
+        // El indicador global es controlado por api.js para todas las solicitudes.
     }
 }
 
