@@ -33,14 +33,14 @@ window.renderizarTablaProductos = function() {
         const valores = [prod.codigo, prod.nombre, categoria?.nombre || 'Sin categoría', formatearMoneda(prod.precio), formatearMoneda(prod.costo), esSeguimientoInventario(prod) ? prod.stock : 'N/A'];
         valores.forEach(valor => { const td = document.createElement('td'); td.textContent = valor; tr.appendChild(td); });
         const acciones = document.createElement('td');
-        acciones.innerHTML = `<button class="btn-icon btn-editar" data-id="${prod.id}" title="Editar">✏️</button><button class="btn-icon btn-eliminar" data-id="${prod.id}" title="Eliminar">🗑️</button>`;
+        acciones.innerHTML = `<button class="btn-accion btn-accion-editar" data-id="${prod.id}" title="Editar producto">Editar</button><button class="btn-accion btn-accion-eliminar" data-id="${prod.id}" title="Eliminar producto">Eliminar</button>`;
         tr.appendChild(acciones);
         tablaProductos.appendChild(tr);
     });
 };
 
 tablaProductos.addEventListener('click', evento => {
-    const btn = evento.target.closest('.btn-icon');
+    const btn = evento.target.closest('.btn-accion');
     if (!btn) return;
     const id = btn.dataset.id;
     if (btn.classList.contains('btn-editar')) abrirModalProducto(id);

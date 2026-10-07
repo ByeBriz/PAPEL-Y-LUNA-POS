@@ -20,7 +20,7 @@ window.renderizarCatalogo = function(catalogoAMostrar = productos) {
             <p class="precio-producto">${formatearMoneda(producto.precio)}</p>
             <p class="stock-producto">${stockTexto}</p>
             <div class="controles-agregar">
-                <button class="btn btn-naranja btn-editar-venta" data-id="${producto.id}" title="Editar producto">✏️</button>
+                <button class="btn-accion btn-accion-editar-venta btn-accion-editar" data-id="${producto.id}" title="Editar producto">Editar</button>
                 <input type="number" id="cant-${producto.id}" class="entrada-cantidad" value="1" min="1" step="1">
                 <button class="btn btn-verde btn-agregar" data-id="${producto.id}">Añadir</button>
             </div>`;
@@ -104,12 +104,12 @@ function actualizarInterfazFactura() {
         fila.innerHTML = `
             <div class="info-item"><p class="nombre-item"></p><p class="subtotal-item">${formatearMoneda(item.precio)} c/u</p></div>
             <div class="controles-item">
-                <button class="btn-quitar" onclick="cambiarCantidadCarrito(${index}, -1)">−</button>
+                <button class="btn-accion btn-accion-cantidad" onclick="cambiarCantidadCarrito(${index}, -1)" title="Disminuir cantidad">−</button>
                 <span style="font-weight:bold; min-width:25px; text-align:center;">${item.cantidad}</span>
-                <button class="btn-quitar" onclick="cambiarCantidadCarrito(${index}, 1)">+</button>
+                <button class="btn-accion btn-accion-cantidad" onclick="cambiarCantidadCarrito(${index}, 1)" title="Aumentar cantidad">+</button>
                 <input class="precio-editable-venta" type="number" min="0" step="1" value="${Number(item.precio)}" data-indice-precio="${index}" aria-label="Precio de ${String(item.nombre).replace(/"/g, '&quot;')}" title="Precio de esta venta">
                 <p class="nombre-item" style="width:90px;text-align:right;color:var(--action-blue);">${formatearMoneda(linea)}</p>
-                <button class="btn-quitar" onclick="eliminarItemCarrito(${index})" title="Eliminar producto">X</button>
+                <button class="btn-accion btn-accion-eliminar btn-accion-cantidad" onclick="eliminarItemCarrito(${index})" title="Eliminar producto">Eliminar</button>
             </div>`;
         fila.querySelector('.nombre-item').textContent = item.nombre;
         contenedorItemsFactura.appendChild(fila);

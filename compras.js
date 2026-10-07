@@ -12,7 +12,7 @@ window.renderizarCompras = function() {
     [...comprasRegistradas].reverse().forEach(compra => {
         const proveedor = proveedores.find(p => String(p.id) === String(compra.proveedorId));
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${String(compra.id).slice(0, 8)}</td><td>${new Date(compra.fecha).toLocaleDateString('es-CO')}</td><td></td><td>${formatearMoneda(compra.total)}</td><td><button class="btn-icon btn-detalle-compra" data-id="${compra.id}" title="Ver detalle">📄</button></td>`;
+        tr.innerHTML = `<td>${String(compra.id).slice(0, 8)}</td><td>${new Date(compra.fecha).toLocaleDateString('es-CO')}</td><td></td><td>${formatearMoneda(compra.total)}</td><td><button class="btn-accion btn-accion-detalle btn-detalle-compra" data-id="${compra.id}" title="Ver detalle de compra">Detalle</button></td>`;
         tr.children[2].textContent = proveedor?.nombre || 'Desconocido';
         tbody.appendChild(tr);
     });
@@ -25,7 +25,7 @@ document.getElementById('tabla-compras').addEventListener('click', e => {
     if (!compra) return;
     const proveedor = proveedores.find(p => String(p.id) === String(compra.proveedorId));
     const detalle = (compra.items || []).map(i => `• ${i.cantidad} × ${i.nombre} — ${formatearMoneda(i.costo)} c/u`).join('\n');
-    alert(`Compra ${String(compra.id).slice(0, 8)}\nProveedor: ${proveedor?.nombre || 'Desconocido'}\nFecha: ${new Date(compra.fecha).toLocaleString('es-CO')}\n\n${detalle}\n\nTotal: ${formatearMoneda(compra.total)}`);
+    notificar(`Compra ${String(compra.id).slice(0, 8)}\nProveedor: ${proveedor?.nombre || 'Desconocido'}\nFecha: ${new Date(compra.fecha).toLocaleString('es-CO')}\n\n${detalle || 'Sin productos registrados.'}\n\nTotal: ${formatearMoneda(compra.total)}`, 'info', 0, 'Detalle de compra');
 });
 
 document.getElementById('btn-nueva-compra').addEventListener('click', () => {

@@ -29,15 +29,16 @@ function mostrarCarga(mostrar, texto = 'Procesando solicitud...') {
 }
 window.mostrarCarga = mostrarCarga;
 
-function notificar(mensaje, tipo = 'info', duracion = 4200) {
+function notificar(mensaje, tipo = 'info', duracion = 4200, tituloPersonalizado = null) {
     const contenedor = document.getElementById('contenedor-notificaciones');
     if (!contenedor) return;
     const iconos = { exito: '✓', error: '!', advertencia: '⚠', info: 'i' };
     const titulo = { exito: 'Éxito', error: 'Error', advertencia: 'Atención', info: 'Información' };
+    const tituloFinal = tituloPersonalizado || titulo[tipo] || 'Información';
     const aviso = document.createElement('div');
     aviso.className = `notificacion notificacion-${tipo}`;
     aviso.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
-    aviso.innerHTML = `<span class="notificacion-icono">${iconos[tipo] || 'i'}</span><div class="notificacion-contenido"><strong>${titulo[tipo] || 'Información'}</strong><span></span></div><button type="button" class="notificacion-cerrar" aria-label="Cerrar notificación">×</button>`;
+    aviso.innerHTML = `<span class="notificacion-icono">${iconos[tipo] || 'i'}</span><div class="notificacion-contenido"><strong>${tituloFinal}</strong><span></span></div><button type="button" class="notificacion-cerrar" aria-label="Cerrar notificación">×</button>`;
     aviso.querySelector('.notificacion-contenido span').textContent = String(mensaje);
     aviso.querySelector('.notificacion-cerrar').addEventListener('click', () => aviso.remove());
     contenedor.appendChild(aviso);

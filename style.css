@@ -76,8 +76,68 @@ body { background-color: var(--bg-app); color: var(--text-main); display: flex; 
 .tabla-datos { width: 100%; border-collapse: collapse; text-align: left; background-color: var(--surface-white); }
 .tabla-datos th, .tabla-datos td { padding: 12px 15px; border-bottom: 1px solid var(--border-line); font-size: 14px; color: var(--text-main);}
 .tabla-datos th { background-color: var(--primary-dark); font-weight: 700; text-transform: uppercase; font-size: 12px; color: var(--text-muted); }
-.btn-icon { background: none; border: none; cursor: pointer; font-size: 18px; margin: 0 5px; transition: transform 0.2s;}
-.btn-icon:hover { transform: scale(1.2); }
+/* Botones de acciones: etiquetas claras en lugar de iconos/emojis. */
+.btn-accion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 12px;
+    margin: 2px 4px 2px 0;
+    border-radius: 7px;
+    border: 1px solid var(--border-line);
+    background: var(--primary-dark);
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    white-space: nowrap;
+    transition: all .2s ease;
+}
+.btn-accion:hover { transform: translateY(-1px); box-shadow: 0 5px 12px rgba(0,0,0,.22); }
+.btn-accion-detalle {
+    background: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+}
+.btn-accion-detalle:hover { background: #ffffff; color: var(--primary-dark); }
+.btn-accion-imprimir {
+    background: var(--success-green);
+    color: #ffffff;
+    border-color: var(--success-green);
+}
+.btn-accion-imprimir:hover { background: #059669; border-color: #059669; }
+.btn-accion-editar {
+    background: var(--action-blue);
+    color: #ffffff;
+    border-color: var(--action-blue);
+}
+.btn-accion-editar:hover { background: #2563eb; border-color: #2563eb; }
+.btn-accion-editar-venta {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #ffffff;
+}
+.btn-accion-editar-venta:hover { background: #d97706; border-color: #d97706; }
+.btn-accion-eliminar {
+    background: transparent;
+    color: #f87171;
+    border-color: #ef4444;
+}
+.btn-accion-eliminar:hover { background: #ef4444; color: #ffffff; }
+.btn-accion-abierta {
+    background: transparent;
+    color: var(--action-blue);
+    border-color: var(--action-blue);
+}
+.btn-accion-abierta:hover { background: var(--action-blue); color: #ffffff; }
+.btn-accion-cantidad {
+    min-width: 34px;
+    padding: 6px 9px;
+    margin: 0;
+}
+
 
 /* Loader Sincronización */
 .loader-spinner { border: 4px solid rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; border-left-color: var(--action-blue); animation: girar 1s linear infinite; margin: 0 auto 15px auto; }
@@ -175,16 +235,6 @@ button:disabled { opacity: .55; cursor: not-allowed; transform: none !important;
     font-weight: 700;
 }
 .precio-editable-venta:focus { outline: none; border-color: var(--action-blue); }
-.btn-estado-abierta {
-    border: 1px solid var(--action-blue);
-    background: transparent;
-    color: var(--action-blue);
-    border-radius: 6px;
-    padding: 7px 10px;
-    font-weight: 800;
-    cursor: pointer;
-}
-.btn-estado-abierta:hover { background: var(--action-blue); color: white; }
 @media (max-width: 600px) {
     .contenedor-notificaciones { top: 10px; right: 10px; width: calc(100vw - 20px); }
     .precio-editable-venta { width: 95px; }

@@ -60,8 +60,8 @@ function renderizarTabla(tipo, datos, columnas, idTabla) {
         });
         const tdAcciones = document.createElement('td');
         tdAcciones.innerHTML = `
-            <button class="btn-icon btn-editar-entidad" data-tipo="${tipo}" data-id="${escaparHTML(item.id)}" title="Editar">✏️</button>
-            <button class="btn-icon btn-eliminar-entidad" data-tipo="${tipo}" data-id="${escaparHTML(item.id)}" title="Eliminar">🗑️</button>`;
+            <button class="btn-accion btn-accion-editar btn-editar-entidad" data-tipo="${tipo}" data-id="${escaparHTML(item.id)}" title="Editar ${config.singular}">Editar</button>
+            <button class="btn-accion btn-accion-eliminar btn-eliminar-entidad" data-tipo="${tipo}" data-id="${escaparHTML(item.id)}" title="Eliminar ${config.singular}">Eliminar</button>`;
         tr.appendChild(tdAcciones);
         tbody.appendChild(tr);
     });
