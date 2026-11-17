@@ -1,0 +1,104 @@
+{
+  "info": {
+    "name": "Papel y Luna POS - Autenticacion JWT",
+    "description": "Verifica login JWT, endpoints protegidos, autorización por rol y códigos HTTP 200, 401 y 403. Ejecuta las solicitudes en orden.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "admin_access", "value": "" },
+    { "key": "admin_refresh", "value": "" },
+    { "key": "cajero_access", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 - Login administrador (200 + tokens)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/auth/login/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Login admin responde 200', function () { pm.response.to.have.status(200); });",
+        "const data = pm.response.json();",
+        "pm.test('Devuelve access, refresh, token y usuario', function () { pm.expect(data.access).to.be.a('string'); pm.expect(data.refresh).to.be.a('string'); pm.expect(data.token).to.eql(data.access); pm.expect(data.user.rol).to.eql('ADMINISTRADOR'); });",
+        "pm.collectionVariables.set('admin_access', data.access);",
+        "pm.collectionVariables.set('admin_refresh', data.refresh);"
+      ] } }]
+    },
+    {
+      "name": "02 - Perfil actual con JWT (200)",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_access}}", "type": "string" }] },
+        "method": "GET", "url": "{{base_url}}/auth/me/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('JWT válido permite consultar perfil (200)', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "03 - Sin token (401)",
+      "request": { "method": "GET", "url": "{{base_url}}/auth/me/" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Sin token responde 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "04 - Token inválido (401)",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "token-invalido", "type": "string" }] },
+        "method": "GET", "url": "{{base_url}}/auth/me/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('JWT inválido responde 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "05 - Endpoint exclusivo de administrador (200)",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_access}}", "type": "string" }] },
+        "method": "GET", "url": "{{base_url}}/auth/admin-check/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Administrador autorizado responde 200', function () { pm.response.to.have.status(200); });"] } }]
+    },
+    {
+      "name": "06 - Login cajero (200)",
+      "request": {
+        "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"cajero\",\n  \"password\": \"cajero123\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/auth/login/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Login cajero responde 200', function () { pm.response.to.have.status(200); });",
+        "const data = pm.response.json();",
+        "pm.collectionVariables.set('cajero_access', data.access);"
+      ] } }]
+    },
+    {
+      "name": "07 - Rol insuficiente en endpoint admin (403)",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{cajero_access}}", "type": "string" }] },
+        "method": "GET", "url": "{{base_url}}/auth/admin-check/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Cajero sin permiso responde 403', function () { pm.response.to.have.status(403); });"] } }]
+    },
+    {
+      "name": "08 - Credenciales incorrectas (401)",
+      "request": {
+        "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"incorrecta\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/auth/login/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Credenciales incorrectas responden 401', function () { pm.response.to.have.status(401); });"] } }]
+    },
+    {
+      "name": "09 - Renovar access token (200)",
+      "request": {
+        "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"refresh\": \"{{admin_refresh}}\"\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{base_url}}/auth/refresh/"
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Refresh token válido responde 200', function () { pm.response.to.have.status(200); });",
+        "const data = pm.response.json();",
+        "pm.test('Devuelve nuevo access token', function () { pm.expect(data.access).to.be.a('string'); });",
+        "pm.collectionVariables.set('admin_access', data.access);"
+      ] } }]
+    }
+  ]
+}
